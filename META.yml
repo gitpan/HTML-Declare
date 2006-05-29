@@ -11,4 +11,4 @@ no_index:
 requires: 
   HTML::Entities: 0
   perl: 5.8.1
-version: 2.0
+version: 2.1

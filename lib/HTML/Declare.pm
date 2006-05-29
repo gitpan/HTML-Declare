@@ -7,7 +7,7 @@ use HTML::Entities 'encode_entities';
 
 use overload '""' => sub { shift->as_html };
 
-our $VERSION = '2.0';
+our $VERSION = '2.1';
 
 sub TAG (@) {
     my $attributes = shift;
@@ -267,6 +267,7 @@ HTML::Declare - For When Template Systems Are Too Huge And Heredocs Too Messy
 
 =head1 SYNOPSIS
 
+    # Import all constructors
     use HTML::Declare ':all';
 
     # A simple hello world
@@ -276,6 +277,9 @@ HTML::Declare - For When Template Systems Are Too Huge And Heredocs Too Messy
             BODY { _ => 'Hello World!' } 
         ]   
     };
+
+    # Import specific constructors
+    use HTML::Declare qw/DIV A/;
 
     # A simple anchor nested in a div
     my $tree = DIV {
@@ -297,28 +301,33 @@ it's just a simple (and fun) way to avoid those messy heredocs. ;)
 
 =head1 METHODS
 
-=head1 as_html
+L<HTML::Declare> instances have the following methods.
 
-=head1 attributes
+=head2 new
 
-=head1 children
+=head2 as_html
 
-=head1 tag
+=head2 attributes
+
+=head2 children
+
+=head2 tag
 
 =head1 FUNCTIONS
 
-All functions work the same, they expect a hashref as first argument
+All exported functions work the same, they expect a hashref as first argument
 which contains attributes for the tag to generate.
 
 The special attribute _ contains the content for the tag.
 The content may be a single string (in this case entities
-are auto encoded) or a arrayref containing strings that
-shouldn't be encoded.
+are auto encoded), a arrayref containing strings that
+shouldn't be encoded or L<HTML::Declare> instances.
 
     <TAG> { attribute => 'value' }
-    DIV { id => 'foo', _ => 'lalala' }
+    DIV { id => 'foo', _ => 'lalala<<encode me>>' }
     DIV { id => 'link' _ => [ '<b>Don't encode me!</b>' ] }
     DIV { _ => [ A { href => 'http://127.0.0.1', _ => 'Home!' } ] }
+    DIV { _ => [ A { href => 'http://host', _ => H1 { _ => 'Test' } } ] }
 
 =head2 A
 

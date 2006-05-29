@@ -1,5 +1,8 @@
 This file documents the revision history for Perl extension HTML::Declare.
 
+2.1   2006-05-29 12:40:00
+        - Updated pod
+
 2.0   2006-05-29 12:40:00
         - Big update, now building in memory tree instead of
           rendering directly.
