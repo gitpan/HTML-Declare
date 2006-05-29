@@ -14,7 +14,7 @@ EOF
 
 my $html2 = HTML {
     _ => [
-        HEAD { _ => [ TITLE { _ => 'Hello World!' } ] },
+        HEAD { _ => TITLE { _ => 'Hello World!' } },
         BODY { _ => '<lalala><quoteme><br/>' }
     ]
 };

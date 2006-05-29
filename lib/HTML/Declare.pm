@@ -5,40 +5,40 @@ use warnings;
 use base 'Exporter';
 use HTML::Entities 'encode_entities';
 
-our $VERSION = '1.0';
+use overload '""' => sub { shift->as_html };
+
+our $VERSION = '2.0';
 
 sub TAG (@) {
-    my ( $attributes, @more ) = @_;
+    my $attributes = shift;
 
     my $sub = ( caller(1) )[3];
     $sub =~ /.*::(.*)$/;
     my $tag = lc $1;
 
-    my $html = "<$tag";
-    $attributes ||= {};
+    my $html = HTML::Declare->new;
+    $html->tag($tag);
 
-    my $content;
+    $attributes ||= {};
+    my $children = [];
+
     for my $key ( keys %$attributes ) {
 
         my $value = $attributes->{$key};
 
         if ( $key eq '_' ) {
-            $content = $value;
-            next;
+
+            if    ( ref $value eq 'ARRAY' )         { $children = $value }
+            elsif ( ref $value eq 'HTML::Declare' ) { $children = [$value] }
+            else { $children = [ encode_entities("$value") ] }
+
         }
-
-        $html .= qq/ $key="$value"/;
+        else { push @{ $html->attributes }, [ $key, $value ] }
     }
 
-    if ( !$content ) { $html .= '/>' }
-    elsif ( ref $content eq 'ARRAY' ) {
-        $html .= '>';
-        $html .= $_ for @$content;
-        $html .= "</$tag>";
-    }
-    else { $html .= '>' . encode_entities($content) . "</$tag>" }
+    $html->children($children);
 
-    return join '', $html, @more;
+    return $html;
 }
 
 our @EXPORT_OK = qw/
@@ -127,87 +127,136 @@ our @EXPORT_OK = qw/
   /;
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );
 
-sub A (@)          { TAG @_ }
-sub ABBR (@)       { TAG @_ }
-sub ACRONYM (@)    { TAG @_ }
-sub ADDRESS (@)    { TAG @_ }
-sub AREA (@)       { TAG @_ }
-sub B (@)          { TAG @_ }
-sub BASE (@)       { TAG @_ }
-sub BDO (@)        { TAG @_ }
-sub BIG (@)        { TAG @_ }
-sub BLOCKQUOTE (@) { TAG @_ }
-sub BODY (@)       { TAG @_ }
-sub BR (@)         { TAG @_ }
-sub BUTTON (@)     { TAG @_ }
-sub CAPTION (@)    { TAG @_ }
-sub CITE (@)       { TAG @_ }
-sub CODE (@)       { TAG @_ }
-sub COL (@)        { TAG @_ }
-sub COLGROUP (@)   { TAG @_ }
-sub DD (@)         { TAG @_ }
-sub DEL (@)        { TAG @_ }
-sub DIV (@)        { TAG @_ }
-sub DFN (@)        { TAG @_ }
-sub DL (@)         { TAG @_ }
-sub DT (@)         { TAG @_ }
-sub EM (@)         { TAG @_ }
-sub FIELDSET (@)   { TAG @_ }
-sub FORM (@)       { TAG @_ }
-sub FRAME (@)      { TAG @_ }
-sub FRAMESET (@)   { TAG @_ }
-sub H1 (@)         { TAG @_ }
-sub H2 (@)         { TAG @_ }
-sub H3 (@)         { TAG @_ }
-sub H4 (@)         { TAG @_ }
-sub H5 (@)         { TAG @_ }
-sub H6 (@)         { TAG @_ }
-sub HEAD (@)       { TAG @_ }
-sub HR (@)         { TAG @_ }
-sub HTML (@)       { TAG @_ }
-sub I (@)          { TAG @_ }
-sub IFRAME (@)     { TAG @_ }
-sub IMG (@)        { TAG @_ }
-sub INPUT (@)      { TAG @_ }
-sub INS (@)        { TAG @_ }
-sub KBD (@)        { TAG @_ }
-sub LABEL (@)      { TAG @_ }
-sub LEGEND (@)     { TAG @_ }
-sub LI (@)         { TAG @_ }
-sub LINK (@)       { TAG @_ }
-sub MAP (@)        { TAG @_ }
-sub META (@)       { TAG @_ }
-sub NOFRAMES (@)   { TAG @_ }
-sub NOSCRIPT (@)   { TAG @_ }
-sub OBJECT (@)     { TAG @_ }
-sub OL (@)         { TAG @_ }
-sub OPTGROUP (@)   { TAG @_ }
-sub OPTION (@)     { TAG @_ }
-sub P (@)          { TAG @_ }
-sub PARAM (@)      { TAG @_ }
-sub PRE (@)        { TAG @_ }
-sub Q (@)          { TAG @_ }
-sub SAMP (@)       { TAG @_ }
-sub SCRIPT (@)     { TAG @_ }
-sub SELECT (@)     { TAG @_ }
-sub SMALL (@)      { TAG @_ }
-sub SPAN (@)       { TAG @_ }
-sub STRONG (@)     { TAG @_ }
-sub STYLE (@)      { TAG @_ }
-sub SUB (@)        { TAG @_ }
-sub SUP (@)        { TAG @_ }
-sub TABLE (@)      { TAG @_ }
-sub TBODY (@)      { TAG @_ }
-sub TD (@)         { TAG @_ }
-sub TEXTAREA (@)   { TAG @_ }
-sub TFOOT (@)      { TAG @_ }
-sub TH (@)         { TAG @_ }
-sub THEAD (@)      { TAG @_ }
-sub TITLE (@)      { TAG @_ }
-sub TR (@)         { TAG @_ }
-sub TT (@)         { TAG @_ }
-sub UL (@)         { TAG @_ }
-sub VAR (@)        { TAG @_ }
+sub A ($)          { TAG @_ }
+sub ABBR ($)       { TAG @_ }
+sub ACRONYM ($)    { TAG @_ }
+sub ADDRESS ($)    { TAG @_ }
+sub AREA ($)       { TAG @_ }
+sub B ($)          { TAG @_ }
+sub BASE ($)       { TAG @_ }
+sub BDO ($)        { TAG @_ }
+sub BIG ($)        { TAG @_ }
+sub BLOCKQUOTE ($) { TAG @_ }
+sub BODY ($)       { TAG @_ }
+sub BR ($)         { TAG @_ }
+sub BUTTON ($)     { TAG @_ }
+sub CAPTION ($)    { TAG @_ }
+sub CITE ($)       { TAG @_ }
+sub CODE ($)       { TAG @_ }
+sub COL ($)        { TAG @_ }
+sub COLGROUP ($)   { TAG @_ }
+sub DD ($)         { TAG @_ }
+sub DEL ($)        { TAG @_ }
+sub DIV ($)        { TAG @_ }
+sub DFN ($)        { TAG @_ }
+sub DL ($)         { TAG @_ }
+sub DT ($)         { TAG @_ }
+sub EM ($)         { TAG @_ }
+sub FIELDSET ($)   { TAG @_ }
+sub FORM ($)       { TAG @_ }
+sub FRAME ($)      { TAG @_ }
+sub FRAMESET ($)   { TAG @_ }
+sub H1 ($)         { TAG @_ }
+sub H2 ($)         { TAG @_ }
+sub H3 ($)         { TAG @_ }
+sub H4 ($)         { TAG @_ }
+sub H5 ($)         { TAG @_ }
+sub H6 ($)         { TAG @_ }
+sub HEAD ($)       { TAG @_ }
+sub HR ($)         { TAG @_ }
+sub HTML ($)       { TAG @_ }
+sub I ($)          { TAG @_ }
+sub IFRAME ($)     { TAG @_ }
+sub IMG ($)        { TAG @_ }
+sub INPUT ($)      { TAG @_ }
+sub INS ($)        { TAG @_ }
+sub KBD ($)        { TAG @_ }
+sub LABEL ($)      { TAG @_ }
+sub LEGEND ($)     { TAG @_ }
+sub LI ($)         { TAG @_ }
+sub LINK ($)       { TAG @_ }
+sub MAP ($)        { TAG @_ }
+sub META ($)       { TAG @_ }
+sub NOFRAMES ($)   { TAG @_ }
+sub NOSCRIPT ($)   { TAG @_ }
+sub OBJECT ($)     { TAG @_ }
+sub OL ($)         { TAG @_ }
+sub OPTGROUP ($)   { TAG @_ }
+sub OPTION ($)     { TAG @_ }
+sub P ($)          { TAG @_ }
+sub PARAM ($)      { TAG @_ }
+sub PRE ($)        { TAG @_ }
+sub Q ($)          { TAG @_ }
+sub SAMP ($)       { TAG @_ }
+sub SCRIPT ($)     { TAG @_ }
+sub SELECT ($)     { TAG @_ }
+sub SMALL ($)      { TAG @_ }
+sub SPAN ($)       { TAG @_ }
+sub STRONG ($)     { TAG @_ }
+sub STYLE ($)      { TAG @_ }
+sub SUB ($)        { TAG @_ }
+sub SUP ($)        { TAG @_ }
+sub TABLE ($)      { TAG @_ }
+sub TBODY ($)      { TAG @_ }
+sub TD ($)         { TAG @_ }
+sub TEXTAREA ($)   { TAG @_ }
+sub TFOOT ($)      { TAG @_ }
+sub TH ($)         { TAG @_ }
+sub THEAD ($)      { TAG @_ }
+sub TITLE ($)      { TAG @_ }
+sub TR ($)         { TAG @_ }
+sub TT ($)         { TAG @_ }
+sub UL ($)         { TAG @_ }
+sub VAR ($)        { TAG @_ }
+
+sub new { return bless {}, shift }
+
+sub as_html {
+    my $self = shift;
+
+    my $tag  = $self->tag;
+    my $html = "<$tag";
+
+    for my $attribute ( @{ $self->attributes } ) {
+        my $key   = $attribute->[0];
+        my $value = $attribute->[1];
+        $html .= qq/ $key="$value"/;
+    }
+
+    if ( @{ $self->children } ) {
+
+        $html .= '>';
+        for my $child ( @{ $self->children } ) {
+            $html .= "$child";
+        }
+        $html .= "</$tag>";
+
+    }
+    else { $html .= '/>' }
+
+    return $html;
+}
+
+sub attributes {
+    my ( $self, $attributes ) = @_;
+    $self->{attributes} ||= [];
+    return $self->{attributes} unless $attributes;
+    return $self->{attributes} = $attributes;
+}
+
+sub children {
+    my ( $self, $children ) = @_;
+    $self->{children} ||= [];
+    return $self->{children} unless $children;
+    return $self->{children} = $children;
+}
+
+sub tag {
+    my ( $self, $tag ) = @_;
+    $self->{tag} ||= '';
+    return $self->{tag} unless $tag;
+    return $self->{tag} = $tag;
+}
 
 1;
 __END__
@@ -229,7 +278,7 @@ HTML::Declare - For When Template Systems Are Too Huge And Heredocs Too Messy
     };
 
     # A simple anchor nested in a div
-    print DIV {
+    my $tree = DIV {
         _ => [
             A {
                 href => 'http://127.0.0.1',
@@ -237,6 +286,7 @@ HTML::Declare - For When Template Systems Are Too Huge And Heredocs Too Messy
             }
         ]
     };
+    print "$tree";
 
 =head1 DESCRIPTION
 
@@ -244,6 +294,16 @@ A very simple micro language to generate HTML.
 
 This is not a real template system like L<Template> or L<HTML::Mason>,
 it's just a simple (and fun) way to avoid those messy heredocs. ;)
+
+=head1 METHODS
+
+=head1 as_html
+
+=head1 attributes
+
+=head1 children
+
+=head1 tag
 
 =head1 FUNCTIONS
 
@@ -427,6 +487,10 @@ shouldn't be encoded.
 =head1 AUTHOR
 
 Sebastian Riedel, C<sri@oook.de>
+
+=head1 THANK YOU
+
+Tatsuhiko Miyagawa
 
 =head1 LICENSE
 
