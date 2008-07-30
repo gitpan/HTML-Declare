@@ -7,7 +7,7 @@ use HTML::Entities 'encode_entities';
 
 use overload '""' => sub { shift->as_html };
 
-our $VERSION = '2.1';
+our $VERSION = '2.2';
 
 sub TAG (@) {
     my $attributes = shift;

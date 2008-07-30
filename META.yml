@@ -1,14 +1,21 @@
-abstract: For When Template Systems Are Too Huge And Heredocs Too Messy
-author: Sebastian Riedel, C<sri@oook.de>
+---
+abstract: 'For When Template Systems Are Too Huge And Heredocs Too Messy'
+author:
+  - 'Sebastian Riedel, C<sri@oook.de>'
 distribution_type: module
-generated_by: Module::Install version 0.62
+generated_by: 'Module::Install version 0.76'
 license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
 name: HTML-Declare
-no_index: 
-  directory: 
+no_index:
+  directory:
     - inc
     - t
-requires: 
+requires:
   HTML::Entities: 0
-  perl: 5.8.1
-version: 2.1
+  perl: 5.8.0
+resources:
+  license: http://dev.perl.org/licenses/
+version: 2.2

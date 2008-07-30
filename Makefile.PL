@@ -1,6 +1,7 @@
 use inc::Module::Install;
 
-perl_version '5.8.1';
+perl_version '5.008.001';
+license 'perl';
 
 name 'HTML-Declare';
 all_from 'lib/HTML/Declare.pm';
