@@ -2,8 +2,12 @@
 abstract: 'For When Template Systems Are Too Huge And Heredocs Too Messy'
 author:
   - 'Sebastian Riedel, C<sri@oook.de>'
+build_requires:
+  ExtUtils::MakeMaker: 6.42
+configure_requires:
+  ExtUtils::MakeMaker: 6.42
 distribution_type: module
-generated_by: 'Module::Install version 0.76'
+generated_by: 'Module::Install version 0.91'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -13,9 +17,15 @@ no_index:
   directory:
     - inc
     - t
+provides:
+  HTML::Declare:
+    file: lib/HTML/Declare.pm
+    version: 2.4
 requires:
   HTML::Entities: 0
-  perl: 5.8.0
+  perl: 5.8.0.001
 resources:
+  homepage: http://github.com/bingos/html-declare/tree
   license: http://dev.perl.org/licenses/
-version: 2.2
+  repository: git://github.com/bingos/html-declare.git
+version: 2.4
